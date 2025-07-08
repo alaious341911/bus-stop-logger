@@ -1,95 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Bus-Stop Logger</title>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <title>Bus Stop Logger</title>
   <style>
-    body { font-family: Arial, padding: 20px; background: #f2f2f2; }
-    select, input, button { display: block; margin: 10px 0; padding: 10px; width: 100%; font-size: 16px; }
-    button { background: #007BFF; color: white; border: none; cursor: pointer; }
-    button:hover { background: #0056b3; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 40px;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      color: #333;
+      text-align: center;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
 
-  <h2>🚌 Bus-Stop Logger</h2>
+  <h2>🚌 Bus Stop Logger</h2>
 
-  <label>Select Route</label>
-  <select id="routeSelect" onchange="populateStops()">
-    <option value="">-- Choose Route --</option>
-  </select>
+  <form action="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec" method="POST" target="_blank">
+    <label for="route">Select Route:</label>
+    <select name="route" id="route" required>
+      <option value="">-- Choose Route --</option>
+      <option value="Route A">Route A</option>
+      <option value="Route B">Route B</option>
+      <option value="Route C">Route C</option>
+    </select>
 
-  <label>Select Bus-Stop</label>
-  <select id="busStopSelect" disabled>
-    <option value="">-- Choose Bus Stop --</option>
-  </select>
+    <label for="busStop">Select Bus Stop:</label>
+    <select name="busStop" id="busStop" required>
+      <option value="">-- Choose Bus Stop --</option>
+    </select>
 
-  <label>Your Name</label>
-  <input type="text" id="userName" placeholder="Enter your name"/>
+    <label for="name">Your Name:</label>
+    <input type="text" name="name" id="name" placeholder="Enter your full name" required>
 
-  <button onclick="submitForm()">Submit</button>
-
-  <p id="msg"></p>
+    <button type="submit">Submit</button>
+  </form>
 
   <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7rMj6l24-cOcWDNAtc27-dLolr6_mgJcc1y69bIwvlvQ37fSPt3wH168t2u7oGue0/exec";
-
-    const ROUTES = {
+    const BUS_STOPS = {
       "Route A": ["United Est.", "Shoprite", "TheraAnnex Estate", "Greenland", "Aptech"],
       "Route B": ["Thomas estate", "Sky Mall", "General Paint", "Skymall", "Jonaith", "Nero"],
       "Route C": ["sangotedo markt", "Peace Estate Ogidan", "United Estate", "LBS", "Graceland Estate", "Blenco", "Abraham Adasanya", "Thomas", "Conoil", "M& S", "Enyo after pedestrian bridge"]
     };
 
-    const routeSelect = document.getElementById("routeSelect");
-    const stopSelect = document.getElementById("busStopSelect");
+    const routeSelect = document.getElementById("route");
+    const stopSelect = document.getElementById("busStop");
 
-    for (const route in ROUTES) {
-      const opt = document.createElement("option");
-      opt.value = route;
-      opt.textContent = route;
-      routeSelect.appendChild(opt);
-    }
-
-    function populateStops() {
-      const selected = routeSelect.value;
-      stopSelect.innerHTML = "<option value=''>-- Choose Bus Stop --</option>";
-      stopSelect.disabled = !selected;
-      if (selected) {
-        ROUTES[selected].forEach(stop => {
+    routeSelect.addEventListener("change", () => {
+      const selectedRoute = routeSelect.value;
+      stopSelect.innerHTML = '<option value="">-- Choose Bus Stop --</option>';
+      if (selectedRoute && BUS_STOPS[selectedRoute]) {
+        BUS_STOPS[selectedRoute].forEach(stop => {
           const opt = document.createElement("option");
           opt.value = stop;
           opt.textContent = stop;
           stopSelect.appendChild(opt);
         });
       }
-    }
-
-    function submitForm() {
-      const route = routeSelect.value;
-      const stop = stopSelect.value;
-      const name = document.getElementById("userName").value.trim();
-
-      if (!route || !stop || !name) {
-        alert("Please complete all fields.");
-        return;
-      }
-
-      const payload = { route, busStop: stop, name };
-      fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload),
-        headers: { "Content-Type": "application/json" }
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("msg").textContent = "✅ Entry saved!";
-        document.getElementById("userName").value = "";
-      })
-      .catch(err => {
-        document.getElementById("msg").textContent = "❌ Error submitting form.";
-        console.error(err);
-      });
-    }
+    });
   </script>
 
 </body>
