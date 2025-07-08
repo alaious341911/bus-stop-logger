@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bus-Stop Logger</title>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: Arial, padding: 20px; background: #f2f2f2; }
+    select, input, button { display: block; margin: 10px 0; padding: 10px; width: 100%; font-size: 16px; }
+    button { background: #007BFF; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+
+  <h2>🚌 Bus-Stop Logger</h2>
+
+  <label>Select Route</label>
+  <select id="routeSelect" onchange="populateStops()">
+    <option value="">-- Choose Route --</option>
+  </select>
+
+  <label>Select Bus-Stop</label>
+  <select id="busStopSelect" disabled>
+    <option value="">-- Choose Bus Stop --</option>
+  </select>
+
+  <label>Your Name</label>
+  <input type="text" id="userName" placeholder="Enter your name"/>
+
+  <button onclick="submitForm()">Submit</button>
+
+  <p id="msg"></p>
+
+  <script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7rMj6l24-cOcWDNAtc27-dLolr6_mgJcc1y69bIwvlvQ37fSPt3wH168t2u7oGue0/exec";
+
+    const ROUTES = {
+      "Route A": ["United Est.", "Shoprite", "TheraAnnex Estate", "Greenland", "Aptech"],
+      "Route B": ["Thomas estate", "Sky Mall", "General Paint", "Skymall", "Jonaith", "Nero"],
+      "Route C": ["sangotedo markt", "Peace Estate Ogidan", "United Estate", "LBS", "Graceland Estate", "Blenco", "Abraham Adasanya", "Thomas", "Conoil", "M& S", "Enyo after pedestrian bridge"]
+    };
+
+    const routeSelect = document.getElementById("routeSelect");
+    const stopSelect = document.getElementById("busStopSelect");
+
+    for (const route in ROUTES) {
+      const opt = document.createElement("option");
+      opt.value = route;
+      opt.textContent = route;
+      routeSelect.appendChild(opt);
+    }
+
+    function populateStops() {
+      const selected = routeSelect.value;
+      stopSelect.innerHTML = "<option value=''>-- Choose Bus Stop --</option>";
+      stopSelect.disabled = !selected;
+      if (selected) {
+        ROUTES[selected].forEach(stop => {
+          const opt = document.createElement("option");
+          opt.value = stop;
+          opt.textContent = stop;
+          stopSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function submitForm() {
+      const route = routeSelect.value;
+      const stop = stopSelect.value;
+      const name = document.getElementById("userName").value.trim();
+
+      if (!route || !stop || !name) {
+        alert("Please complete all fields.");
+        return;
+      }
+
+      const payload = { route, busStop: stop, name };
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("msg").textContent = "✅ Entry saved!";
+        document.getElementById("userName").value = "";
+      })
+      .catch(err => {
+        document.getElementById("msg").textContent = "❌ Error submitting form.";
+        console.error(err);
+      });
+    }
+  </script>
+
+</body>
+</html>
