@@ -57,9 +57,9 @@
     <label for="route">Select Route:</label>
     <select name="route" id="route" required>
       <option value="">-- Choose Route --</option>
-      <option value="Route A">Route A</option>
-      <option value="Route B">Route B</option>
-      <option value="Route C">Route C</option>
+      <option value="Sangotedo Route">Sangotedo Route</option>
+<!--       <option value="Route B">Route B</option>
+      <option value="Route C">Route C</option> -->
     </select>
 
     <label for="busStop">Select Bus Stop:</label>
@@ -68,14 +68,18 @@
     </select>
 
     <label for="name">Your Name:</label>
-    <input type="text" name="name" id="name" placeholder="Enter your full name" required>
+    <input type="text" name="name" id="name" placeholder="Enter your name" required>
 
     <button type="submit">Submit</button>
   </form>
 
   <script>
     const BUS_STOPS = {
-      "Route A": ["United Est.", "Shoprite", "TheraAnnex Estate", "Greenland", "Aptech"],
+      "Sangotedo Route": ["Shoprite","United Est.", "Market", "Nero", "Thera Peace/Aptech",
+     "TheraAnnex Estate", "Peace Estate -Ogidan","Blenco", "Sky Mall", "Jonaith", "Greenland", "Enyo - After Bridge",
+    "Olokonla", "LBS", "General Paint", "Abraham Adasanya", "Graceland Estate", "Conoil - after Grace Land", 
+    "Michael and Solomon", "Thomas Estate", "Ilaje", "VGC", "New Road", "Ilasan", "Salem" ],
+      
       "Route B": ["Thomas estate", "Sky Mall", "General Paint", "Skymall", "Jonaith", "Nero"],
       "Route C": ["sangotedo markt", "Peace Estate Ogidan", "United Estate", "LBS", "Graceland Estate", "Blenco", "Abraham Adasanya", "Thomas", "Conoil", "M& S", "Enyo after pedestrian bridge"]
     };
