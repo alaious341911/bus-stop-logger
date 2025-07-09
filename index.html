@@ -2,25 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bus Stop Logger</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-      max-width: 600px;
+      background: #f9f9f9;
+      padding: 40px;
+      max-width: 500px;
       margin: auto;
     }
     h2 {
+      color: #333;
       text-align: center;
     }
-    form, .result-box {
-      background: white;
+    form {
+      background: #fff;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-top: 20px;
     }
     label {
       display: block;
@@ -35,13 +34,13 @@
       border: 1px solid #ccc;
     }
     button {
-      background-color: #28a745;
+      background-color: #007bff;
       color: white;
       border: none;
       margin-top: 20px;
     }
     button:hover {
-      background-color: #218838;
+      background-color: #0056b3;
     }
     .success {
       color: green;
@@ -52,115 +51,55 @@
 </head>
 <body>
 
-<h2>🚌 Bus Stop Logger</h2>
+  <h2>🚌 Bus Stop Logger</h2>
 
-<form id="busForm">
-  <label for="route">Select Route:</label>
-  <select id="route" required>
-    <option value="">-- Choose Route --</option>
-    <option value="Sangotedo Route">Sangotedo Route</option>
-  </select>
+  <form action="https://script.google.com/macros/s/AKfycbyc-3C8Jo9p5yXkqhrflFfZhv0YAgh-nJJeTZGEy9qTtrH6gOqu-co3XwyTSzN-ea4u/exec" method="POST" target="_blank">
+    <label for="route">Select Route:</label>
+    <select name="route" id="route" required>
+      <option value="">-- Choose Route --</option>
+      <option value="Sangotedo Route">Sangotedo Route</option>
+<!--       <option value="Route B">Route B</option>
+      <option value="Route C">Route C</option> -->
+    </select>
 
-  <label for="busStop">Nearest Bus Stop (auto-detected):</label>
-  <input type="text" id="busStop" readonly required>
+    <label for="busStop">Select Bus Stop:</label>
+    <select name="busStop" id="busStop" required>
+      <option value="">-- Choose Bus Stop --</option>
+    </select>
 
-  <label for="name">Your Name:</label>
-  <input type="text" id="name" placeholder="Enter your name" required>
+    <label for="name">Your Name:</label>
+    <input type="text" name="name" id="name" placeholder="Enter your name" required>
 
-  <button type="submit">Log My Entry</button>
-</form>
+    <button type="submit">Submit</button>
+  </form>
 
-<div class="result-box">
-  <h4>Nearest Stop:</h4>
-  <div id="nearestStop">Detecting...</div>
-  <h4>Next Stop:</h4>
-  <div id="nextStop">---</div>
-</div>
+  <script>
+    const BUS_STOPS = {
+      "Sangotedo Route": ["Shoprite","United Est.", "Market", "Nero", "Thera Peace/Aptech",
+     "TheraAnnex Estate", "Peace Estate -Ogidan","Blenco", "Sky Mall", "Jonaith", "Greenland", "Enyo - After Bridge",
+    "Olokonla", "LBS", "General Paint", "Abraham Adasanya", "Graceland Estate", "Conoil - after Grace Land", 
+    "Michael and Solomon", "Thomas Estate", "Ilaje", "VGC", "New Road", "Ilasan", "Salem" ],
+      
+      "Route B": ["Thomas estate", "Sky Mall", "General Paint", "Skymall", "Jonaith", "Nero"],
+      "Route C": ["sangotedo markt", "Peace Estate Ogidan", "United Estate", "LBS", "Graceland Estate", "Blenco", "Abraham Adasanya", "Thomas", "Conoil", "M& S", "Enyo after pedestrian bridge"]
+    };
 
-<script>
-  const form = document.getElementById("busForm");
-  const routeSelect = document.getElementById("route");
-  const stopInput = document.getElementById("busStop");
-  const nameInput = document.getElementById("name");
+    const routeSelect = document.getElementById("route");
+    const stopSelect = document.getElementById("busStop");
 
-  const BUS_COORDS = {
-    "Sangotedo Route": [
-      { name: "Shoprite", lat: 6.472, lng: 3.943 },
-      { name: "United Est.", lat: 6.474, lng: 3.946 },
-      { name: "Market", lat: 6.475, lng: 3.949 },
-      { name: "Nero", lat: 6.477, lng: 3.950 },
-      { name: "Thera Peace/Aptech", lat: 6.479, lng: 3.951 },
-      { name: "TheraAnnex Estate", lat: 6.480, lng: 3.952 }
-    ]
-  };
-
-  function haversine(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  }
-
-  routeSelect.addEventListener("change", () => {
-    detectNearestStop();
-  });
-
-  function detectNearestStop() {
-    const route = routeSelect.value;
-    if (!route || !BUS_COORDS[route]) return;
-
-    navigator.geolocation.getCurrentPosition(pos => {
-      const userLat = pos.coords.latitude;
-      const userLng = pos.coords.longitude;
-
-      const stops = BUS_COORDS[route];
-      let nearestIdx = 0;
-      let minDist = Infinity;
-
-      stops.forEach((stop, i) => {
-        const d = haversine(userLat, userLng, stop.lat, stop.lng);
-        if (d < minDist) {
-          minDist = d;
-          nearestIdx = i;
-        }
-      });
-
-      const nearest = stops[nearestIdx];
-      const next = stops[nearestIdx + 1] || { name: "End of Route" };
-
-      stopInput.value = nearest.name;
-      document.getElementById("nearestStop").textContent = nearest.name;
-      document.getElementById("nextStop").textContent = next.name;
-    }, err => {
-      alert("Location access denied. Enable it to detect nearest stop.");
+    routeSelect.addEventListener("change", () => {
+      const selectedRoute = routeSelect.value;
+      stopSelect.innerHTML = '<option value="">-- Choose Bus Stop --</option>';
+      if (selectedRoute && BUS_STOPS[selectedRoute]) {
+        BUS_STOPS[selectedRoute].forEach(stop => {
+          const opt = document.createElement("option");
+          opt.value = stop;
+          opt.textContent = stop;
+          stopSelect.appendChild(opt);
+        });
+      }
     });
-  }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const route = routeSelect.value;
-    const busStop = stopInput.value;
-    const name = nameInput.value.trim();
-
-    if (!route || !busStop || !name) return alert("All fields are required.");
-
-    const payload = new URLSearchParams({ route, busStop, name });
-    try {
-      await fetch("https://script.google.com/macros/s/AKfycbyc-3C8Jo9p5yXkqhrflFfZhv0YAgh-nJJeTZGEy9qTtrH6gOqu-co3XwyTSzN-ea4u/exec", {
-        method: "POST",
-        body: payload
-      });
-      alert("Submitted successfully");
-      form.reset();
-      stopInput.value = "";
-      document.getElementById("nearestStop").textContent = "Detecting...";
-      document.getElementById("nextStop").textContent = "---";
-    } catch (err) {
-      alert("Failed to submit. Try again.");
-    }
-  });
-</script>
+  </script>
 
 </body>
 </html>
